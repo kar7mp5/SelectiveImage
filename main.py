@@ -23,7 +23,7 @@ class SelectiveImage:
     def __init__(self):
         self.requested_image_name : str = "" # Requested Image Name
         self.requested_image_number : str = "" # Requested Image Number
-        self.driver_path : str = f"{os.getcwd()}/driver/chromedriver.exe" # Chrome Driver Path
+        self.chrome_driver_path : str = f"{os.getcwd()}/driver/chromedriver.exe" # Chrome Driver Path
         self.main()
 
     def read_data_from_csv(self):
@@ -53,27 +53,27 @@ class SelectiveImage:
             self.requested_image_number = requested_image_number_entry.get() # Requested Image Number
             window.destroy()
         # Get Image Name
-        requested_image_name_label = tk.Label(window, text="Insert Image Name:")
+        requested_image_name_label = tk.Label(window, text="Insert Image Name:") # Text : Request Image Name
         requested_image_name_label.grid(column=0, row=0, sticky=tk.W, padx=5, pady=5)
 
-        requested_image_name_entry = tk.Entry(window)
+        requested_image_name_entry = tk.Entry(window) # InputBox
         requested_image_name_entry.grid(column=1, row=0, sticky=tk.E, padx=5, pady=5)
         # Get Image Number
-        requested_image_number_label = tk.Label(window, text="Insert Image Number:")
+        requested_image_number_label = tk.Label(window, text="Insert Image Number:") # Text : Request Image Number
         requested_image_number_label.grid(column=0, row=1, sticky=tk.W, padx=5, pady=5)
 
-        requested_image_number_entry = tk.Entry(window)
+        requested_image_number_entry = tk.Entry(window) # InputBox
         requested_image_number_entry.grid(column=1, row=1, sticky=tk.E, padx=5, pady=5)
         # get text button
         login_button = tk.Button(window, text="Download", command=get_text) # command : get_text
         login_button.grid(column=1, row=3, sticky=tk.E, padx=5, pady=5)
 
         window.mainloop()
-        
-        if self.requested_image_name == "" or self.requested_image_number == "": # requested_image_name && requested_image_number == null --> Exit
+
+        if self.requested_image_name == "" or self.requested_image_number == "": # requested_image_name && requested_image_number == null --> Exit Program
             sys.exit()
         """Search Image"""
-        driver = webdriver.Chrome(self.driver_path)
+        driver = webdriver.Chrome(self.chrome_driver_path)
         driver.implicitly_wait(10)
         driver.get("https://www.google.com/imghp?hl=ko&tab=8i") # Open Google Photo
         search_box = driver.find_element(By.CLASS_NAME, "gLFyf")
