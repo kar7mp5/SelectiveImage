@@ -52,15 +52,12 @@ Research Image
 """
 driver_path = f"{os.getcwd()}/driver/chromedriver.exe"
 driver = webdriver.Chrome(driver_path)
-# options = webdriver.ChromeOptions()
-# options.add_experimental_option('excludeSwitches', ['enable-logging'])
-# driver = webdriver.Chrome(options=options)
 driver.implicitly_wait(10)
 driver.get("https://www.google.com/imghp?hl=ko&tab=8i")
 ### insert image name
-RESEARCH_BOX = driver.find_element(By.CLASS_NAME, "gLFyf")
-RESEARCH_BOX.send_keys(IMAGE_NAME) ##############################
-RESEARCH_BOX.send_keys(Keys.RETURN)
+research_box = driver.find_element(By.CLASS_NAME, "gLFyf")
+research_box.send_keys(IMAGE_NAME)
+research_box.send_keys(Keys.RETURN)
 """
 Get every Image
 """
