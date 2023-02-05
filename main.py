@@ -3,9 +3,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import urllib.request
 import tkinter as tk
-import time
-import os
-import sys
+import time, os, sys, csv
 
 
 import numpy as np
@@ -19,77 +17,11 @@ class SelectiveImage:
         self.requested_image_name : str = "" # Requested Image Name
         self.requested_image_number : str = "" # Requested Image Number
         self.first_download_image : int = 50 # 1st Downlaod Image
+        self.test_image_path : str = f"{os.getcwd()}/train_data/test_image/"
         self.chrome_driver_path : str = f"{os.getcwd()}/driver/chromedriver.exe" # Chrome Driver Path
-        self.main()
-
-    def read_data_from_csv(self):
-        pass
-
-    def train_model(self):
-        label: dict = {0: "가위", 1: "보"}
-        IMAGE_SIZE : int = 50
-        TRAIN_EPOCH : int = 100
-        IMAGE_NUMBER : int = 50
 
 
-        image_list : list = []
-        image_path : str = "train_data/test_image"
-
-
-        for i in range(IMAGE_NUMBER):
-            try:
-                image_list.append(Image.open(f"{image_path}/{i}.jpg").convert("L"))
-            except:
-                try:
-                    image_list.append(Image.open(f"{image_path}/{i}.jpeg").convert("L"))
-                except:
-                    image_list.append(Image.open(f"{image_path}/{i}.png").convert("L"))
-
-
-        resized_image_list : list = []
-
-        for i in range(IMAGE_NUMBER):
-            resized_image_list.append(np.array(image_list[i].resize((IMAGE_SIZE, IMAGE_SIZE))).reshape(1, -1)[0]/255.)
-
-        X = np.array(resized_image_list)
-
-        y_list = []
-
-        for i in range(20): 
-            y_list.append(0)
-        for j in range(30):
-            y_list.append(1)
-
-        Y = np.array(y_list)
-
-        # Load Train Model
-        model = tf.keras.Sequential([
-            tf.keras.layers.InputLayer(input_shape=[IMAGE_SIZE**2,]),
-            tf.keras.layers.Dense(128, activation="relu"),
-            tf.keras.layers.Dense(10, activation="softmax")
-        ])
-        # Compile Model
-        model.compile(  
-                        optimizer="adam",
-                        loss="sparse_categorical_crossentropy",
-                        metrics=["accuracy"]
-                     )
-        # Train Model
-        model.fit(
-                    X, Y,
-                    epochs=TRAIN_EPOCH,
-                    batch_size= 10,
-                    validation_split=0.25
-                 )
-
-        model.save("rocksissorpaper.h5") # Save Model
-
-
-    def distribute_image(self):
-        pass
-
-
-    def main(self):
+    def first_cralwing(self):
         """Basic Setting"""
         window = tk.Tk()
         window.title("ImageDownloader") # Window's Title
@@ -152,9 +84,9 @@ class SelectiveImage:
                 image.click()
                 image_link = str(driver.find_element(By.CSS_SELECTOR, "img.n3VNCb.KAlRDb").get_attribute("src"))
                 """Distribute File's Format"""
-                if ".jpg" in image_link : saved_image_path = f"{os.getcwd()}/train_data/test_image/{INDEX}.jpg" # .jpg
-                elif ".jpeg" in image_link : saved_image_path = f"{os.getcwd()}/train_data/test_image/{INDEX}.jpeg" # .jpeg
-                elif ".png" in image_link : saved_image_path = f"{os.getcwd()}/train_data/test_image/{INDEX}.png" # .png
+                if ".jpg" in image_link : saved_image_path = f"{self.test_image_path}{INDEX}.jpg" # .jpg
+                elif ".jpeg" in image_link : saved_image_path = f"{self.test_image_path}{INDEX}.jpeg" # .jpeg
+                elif ".png" in image_link : saved_image_path = f"{self.test_image_path}{INDEX}.png" # .png
                 else : print("Error : Out of the Style") ; continue # Error : Out of the Style
                 urllib.request.urlretrieve(str(image_link), str(saved_image_path)) # Download Selected Image
                 INDEX += 1
@@ -163,5 +95,76 @@ class SelectiveImage:
         driver.close()
 
 
+    def train_model(self):
+        label : dict = {0: "가위", 1: "보"}
+        IMAGE_SIZE : int = 50
+        TRAIN_EPOCH : int = 100
+        IMAGE_NUMBER : int = 50
+
+
+        image_list : list = []
+
+        for i in range(IMAGE_NUMBER):
+            try:
+                image_list.append(Image.open(f"{self.test_image_path}{i}.jpg").convert("L"))
+            except:
+                try:
+                    image_list.append(Image.open(f"{self.test_image_path}{i}.jpeg").convert("L"))
+                except:
+                    image_list.append(Image.open(f"{self.test_image_path}{i}.png").convert("L"))
+
+
+        resized_image_list : list = []
+
+
+        for i in range(IMAGE_NUMBER):
+            resized_image_list.append(np.array(image_list[i].resize((IMAGE_SIZE, IMAGE_SIZE))).reshape(1, -1)[0]/255.)
+
+        X = np.array(resized_image_list)
+
+        y_list : list = []
+
+        for i in range(IMAGE_NUMBER):
+            y_list.append(0)
+
+        Y = np.array(y_list)
+
+        # Load Train Model
+        model = tf.keras.Sequential([
+            tf.keras.layers.InputLayer(input_shape=[IMAGE_SIZE**2,]),
+            tf.keras.layers.Dense(128, activation="relu"),
+            tf.keras.layers.Dense(10, activation="softmax")
+        ])
+        # Compile Model
+        model.compile(  
+                        optimizer="adam",
+                        loss="sparse_categorical_crossentropy",
+                        metrics=["accuracy"]
+                     )
+        # Train Model
+        model.fit(
+                    X, Y,
+                    epochs=TRAIN_EPOCH,
+                    batch_size= 10,
+                    validation_split=0.25
+                 )
+
+        model.save("rocksissorpaper.h5") # Save Model
+
+
+        new_model = tf.keras.models.load_model("rocksissorpaper.h5")
+
+
+        # predict private image
+        test_img = Image.open(f"{self.test_image_path}/50.jpg").convert("L")
+        img = np.array(test_img.resize((IMAGE_SIZE, IMAGE_SIZE))).reshape(1, -1)[0]/255.
+
+
+        print(label[new_model.predict(np.array([img])).argmax()]) # show what object is
+        print(label[new_model.predict(np.array([img])).argmax()]=="가위")
+
+
 if __name__=="__main__":
-    SelectiveImage()
+    selective_image = SelectiveImage()
+    # selective_image.first_cralwing()
+    selective_image.train_model()
