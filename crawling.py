@@ -9,7 +9,6 @@ import sys
 
 
 """Title : SelectiveImage"""
-
 class SelectiveImage:
     def __init__(self):
         self.requested_image_name : str = "" # Requested Image Name
@@ -94,9 +93,9 @@ class SelectiveImage:
                 image.click()
                 image_link = str(driver.find_element(By.CSS_SELECTOR, "img.n3VNCb.KAlRDb").get_attribute("src"))
                 """Distribute File's Format"""
-                if ".jpg" in image_link : saved_image_path = f"{os.getcwd()}/train_data/distributed_image/{INDEX}.jpg" # .jpg
-                elif ".jpeg" in image_link : saved_image_path = f"{os.getcwd()}/train_data/distributed_image/{INDEX}.jpeg" # .jpeg
-                elif ".png" in image_link : saved_image_path = f"{os.getcwd()}/train_data/distributed_image/{INDEX}.png" # .png
+                if ".jpg" in image_link : saved_image_path = f"{os.getcwd()}/train_data/test_image/{INDEX}.jpg" # .jpg
+                elif ".jpeg" in image_link : saved_image_path = f"{os.getcwd()}/train_data/test_image/{INDEX}.jpeg" # .jpeg
+                elif ".png" in image_link : saved_image_path = f"{os.getcwd()}/train_data/test_image/{INDEX}.png" # .png
                 else : print("Error : Out of the Style") ; continue # Error : Out of the Style
                 urllib.request.urlretrieve(str(image_link), str(saved_image_path)) # Download Selected Image
                 INDEX += 1
