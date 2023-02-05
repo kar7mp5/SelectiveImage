@@ -14,6 +14,7 @@ class SelectiveImage:
     def __init__(self):
         self.requested_image_name : str = "" # Requested Image Name
         self.requested_image_number : str = "" # Requested Image Number
+        self.first_download_image : int = 50 # 1st Downlaod Image
         self.chrome_driver_path : str = f"{os.getcwd()}/driver/chromedriver.exe" # Chrome Driver Path
         self.main()
 
@@ -83,10 +84,10 @@ class SelectiveImage:
             last_height = new_height
         """Download Image"""
         image_list = driver.find_elements(By.CSS_SELECTOR, "img.rg_i.Q4LuWd")
-        INDEX = 0
-        saved_image_path: str = ""
+        INDEX : int = 0
+        saved_image_path : str = ""
         for image in image_list:
-            if INDEX == int(self.requested_image_number): # As All Images are Downloaded
+            if INDEX == int(self.first_download_image): # As All Images are Downloaded
                 break
             try:
                 driver.implicitly_wait(2)
@@ -99,7 +100,7 @@ class SelectiveImage:
                 else : print("Error : Out of the Style") ; continue # Error : Out of the Style
                 urllib.request.urlretrieve(str(image_link), str(saved_image_path)) # Download Selected Image
                 INDEX += 1
-            except : print("Error : Blocked by Website") ; pass # Error : Blocked by Website
+            except: print("Error : Blocked by Website") ; pass # Error : Blocked by Website
 
         driver.close()
 
